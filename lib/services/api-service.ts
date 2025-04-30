@@ -13,6 +13,13 @@ const api = axios.create({
   },
 });
 
+const reservationApi = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001",
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
 const mockProducts: Product[] = [
   { id: 1, name: "Limited Edition Headphones", available: 5 },
   {
@@ -158,8 +165,8 @@ export async function checkQueuePosition(
   }
 
   try {
-    const response = await api.get(
-      `/queue/position?userId=${userId}&productId=${productId}`
+    const response = await reservationApi.get(
+      `/reservation/status?userId=${userId}&productId=${productId}`
     );
     return response.data;
   } catch (error) {
@@ -169,6 +176,24 @@ export async function checkQueuePosition(
 }
 
 api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response) {
+      switch (error.response.status) {
+        case 409:
+          return Promise.reject(
+            new Error("Product is out of stock or already reserved")
+          );
+        case 500:
+          return Promise.reject(
+            new Error("Server error. Please try again later.")
+          );
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+reservationApi.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response) {
