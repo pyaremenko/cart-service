@@ -26,7 +26,7 @@ export default function CartStatus() {
   const [total] = useAtom(cartTotalAtom);
   const [_, checkQueueStatus] = useAtom(checkQueueStatusAtom);
   const [__, removeFromCart] = useAtom(removeFromCartAtom);
-
+  let c;
   const userId = user ? user.id : 101;
 
   useEffect(() => {
@@ -88,60 +88,65 @@ export default function CartStatus() {
       </CardHeader>
       <CardContent>
         <ul className="space-y-4 divide-y">
-          {cartItems.filter(item => queuePositions[item.productId] || reservations[item.productId]).map((item) => {
-            const queuePosition = queuePositions[item.productId];
-            const reservation = reservations[item.productId];
+          {cartItems
+            .filter(
+              (item) =>
+                queuePositions[item.productId] || reservations[item.productId]
+            )
+            .map((item) => {
+              const queuePosition = queuePositions[item.productId];
+              const reservation = reservations[item.productId];
 
-            return (
-              <li key={item.productId} className="pt-4">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center">
-                    <div className="w-12 h-12 bg-gray-100 rounded-md mr-3 relative overflow-hidden">
-                      <Image
-                        src={`/generic-product-display.png?height=50&width=50&query=product ${item.productId}`}
-                        alt={`Product ${item.productId}`}
-                        fill
-                        className="object-cover"
-                      />
+              return (
+                <li key={item.productId} className="pt-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center">
+                      <div className="w-12 h-12 bg-gray-100 rounded-md mr-3 relative overflow-hidden">
+                        <Image
+                          src={`/generic-product-display.png?height=50&width=50&query=product ${item.productId}`}
+                          alt={`Product ${item.productId}`}
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
+                      <div>
+                        <p className="font-medium">Product #{item.productId}</p>
+                        <p className="text-sm text-gray-500">
+                          ${(item.productId * 49.99).toFixed(2)}
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-medium">Product #{item.productId}</p>
-                      <p className="text-sm text-gray-500">
-                        ${(item.productId * 49.99).toFixed(2)}
-                      </p>
-                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 rounded-full"
+                      onClick={() => removeFromCart(item.productId)}
+                    >
+                      <X className="h-4 w-4" />
+                      <span className="sr-only">Remove</span>
+                    </Button>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 rounded-full"
-                    onClick={() => removeFromCart(item.productId)}
-                  >
-                    <X className="h-4 w-4" />
-                    <span className="sr-only">Remove</span>
-                  </Button>
-                </div>
 
-                <div className="mt-2">
-                  {reservation ? (
-                    <div className="flex items-center bg-green-50 p-2 rounded-md">
-                      <CheckCircle className="h-4 w-4 text-green-600 mr-2" />
-                      <span className="text-sm text-green-700">
-                        Reserved (ID: {reservation.reservationId})
-                      </span>
-                    </div>
-                  ) : queuePosition !== undefined ? (
-                    <div className="flex items-center bg-amber-50 p-2 rounded-md">
-                      <Clock className="h-4 w-4 text-amber-600 mr-2" />
-                      <span className="text-sm text-amber-700">
-                        Queue Position: {queuePosition}
-                      </span>
-                    </div>
-                  ) : null}
-                </div>
-              </li>
-            );
-          })}
+                  <div className="mt-2">
+                    {reservation ? (
+                      <div className="flex items-center bg-green-50 p-2 rounded-md">
+                        <CheckCircle className="h-4 w-4 text-green-600 mr-2" />
+                        <span className="text-sm text-green-700">
+                          Reserved (ID: {reservation.reservationId})
+                        </span>
+                      </div>
+                    ) : queuePosition !== undefined ? (
+                      <div className="flex items-center bg-amber-50 p-2 rounded-md">
+                        <Clock className="h-4 w-4 text-amber-600 mr-2" />
+                        <span className="text-sm text-amber-700">
+                          Queue Position: {queuePosition}
+                        </span>
+                      </div>
+                    ) : null}
+                  </div>
+                </li>
+              );
+            })}
         </ul>
 
         <div className="mt-6 pt-4 border-t">
